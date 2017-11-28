@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="static/phaser.js"></script>
+  <script src="static/loader.js"></script>
+  <script src="static/boot.js"></script>
+</head>
+<body>
+      <div id="container"></div>
+</body>
+<script>
+  var game = new Phaser.Game(300, 400, Phaser.Auto, 'container');
+  function state(){
+    this.init = function () {};
+    this.preload = function(){};
+    this.create = function(){};
+    this.update = function(){};
+    this.render = function(){};
+  }
+  game.state.add('boot', bootState);
+  game.state.add('load', loaderState);
+  game.state.start('boot');
+</script>
+</html>
