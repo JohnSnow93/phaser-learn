@@ -19,7 +19,7 @@ function loaderState(game){
           progressText.text = progress + '%';
         });
 
-        game.load.tilemap('ma_tiled', './static/source/tileTest001.json', null, Phaser.Tilemap.TILED_JSON);
+        game.load.tilemap('ma_tiled', './static/source/test2.json', null, Phaser.Tilemap.TILED_JSON);
         game.load.image('ma_img', './static/source/mario.png')
     }
     this.create = function () {
@@ -28,8 +28,8 @@ function loaderState(game){
       game.add.text(0, 0, '0%', { fill: '#ffffff', fontSize: '16px' });
 
       var map = game.add.tilemap('ma_tiled');
-      map.addTilesetImage('super_mario', 'ma_img');
-      var layer = map.createLayer('world');
+      map.addTilesetImage('mario', 'ma_img');
+      var layer = map.createLayer('layer1-1');
       
     }
 }

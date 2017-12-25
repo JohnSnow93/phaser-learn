@@ -468,7 +468,10 @@ emitter.bounce.x/y = 0.8 // 设置弹性系数
 3. 构建地图
 4. 导出地图
 
-导出为json数据
+在导入图块后，需要进行embed tileset将图块数据放入json内部，不然Phaser现阶段无法正确的读取。
+见：https://github.com/photonstorm/phaser-ce/issues/273
+
+最后应导出为json数据
 
 #### 在phaser中使用瓦片地图
 ```
@@ -477,14 +480,14 @@ game.load.tilemap(key, url?, data?, format?)
 ```
 - url 存放瓦片地图的地址
 - data 瓦片地图数据 与url参数二选一
-- format 数据的格式，一般是json
+- format 数据的格式，一般是json, 填写`Phaser.Tilemap.CSV`或`Phaser.Tilemap.TILED_JSON`
 
 ```
 // 添加到游戏之中
 var titlemap = game.add.titlemap(key, tileWidth?, tileHeight?, width?, height?)
 
 // 将瓦片地图依赖的资源集合(小图片集)加载进来
-tilemap.addTilesetImage(tileset, key?); // 后一个Key是图片资源key
+tilemap.addTilesetImage(tileset, key?); // tileset是瓦片地图软件tiled中导入的图块的名称,后一个Key是图片资源key
 // 创建层
 tilemap.createLayer(layer);
 ```
@@ -498,4 +501,63 @@ tilemap.setCollision(indexs, collides?, layer?);
 tilemap.setCollisionBetween(start, stop, collides?, layer?);
 ```
 - indexs 数组，数组元素为瓦片的索引
-- 
+
+
+## Phaser中的事件与交互
+### Phaser中的事件系统
+Phaser有一套内置的事件系统，基于观察者模式(发布/订阅者模式)来设计的。
+
+Phaser中的事件系统是由Phaser.Signal对象来实现的。
+每一个Signal对象都代表着一类事件，是一个信号发射器。
+```
+// 创建对象
+var signal = new Phaser.Signal();
+// 添加事件监听器
+siganl.add(listener, listenerContext?. priority?, args?);
+// 添加只会执行一次的监听器
+signal.addOnece(listener, listenerContext?. priority?, args?)
+// 移除单个事件监听器
+signal.remove(listener);
+// 移除该signal对象上所有的事件监听器
+signal.removeAll();
+// 向所有该signal对象上的监听器分发事件
+signal.dispatch(params?)
+// 注销并释放signal对象
+signal.dispose()
+```
+- listener 事件监听器函数
+- listenerContext 事件监听器函数内的上下文(this)
+- priority 函数执行的优先级
+- args 给监听器函数的参数
+- params 传入监听器函数的参数
+
+#### 常用的系统事件
+```
+game.onBlur // 游戏失去焦点时事件
+game.onFocus // 游戏得到焦点事件
+game.onPause // 游戏暂停事件
+game.Resume // 游戏恢复事件
+
+game.scale.onFullScreenChange // 当进入或退出全屏时
+game.scale.onOrientationChange // 当游戏横竖屏切换时
+game.scale.onSizeChaneg // 当游戏尺寸改变时
+
+game.load.onFileComlete // 当某一个文件加载完成时
+game.load.onFileError //  当一个文件加载失败时
+game.load.onFileStart // 当一个文件开始加载时
+game.load.onLoadComplete // 当所有资源加载完成时
+
+// tween是一个补间动画实例
+tween.onStart // 动画开始时
+tween.onComplete // 动画完成时
+tween.onLoop // 动画循环时（开始时指定动画无限循环）
+tween.onRepeat // 动画重复时（开始时指定动画循环指定次数）
+
+// animation 是一个逐帧动画实例
+animation.onStart // 动画开始时
+animation.onComplete // 动画完成时
+animation.onLoop // 动画循环播放时
+animation.onUpdate // 东湖阿达帧变化时
+
+```
+以上游戏事件都是一个signal实例，所以由add/remove等signal对象的方法用于注册或移除监听器
