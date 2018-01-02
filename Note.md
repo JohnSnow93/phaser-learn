@@ -561,3 +561,183 @@ animation.onUpdate // 东湖阿达帧变化时
 
 ```
 以上游戏事件都是一个signal实例，所以由add/remove等signal对象的方法用于注册或移除监听器
+
+### Phaser中的用户交互管理对象
+Phaser.Input 是用户交互管理对象，负责所有用户交互的管理，包括鼠标事件、键盘事件以及触摸事件等
+```
+// 快速引用
+game.input // => new Phaser.Input(game);
+
+// 下面四个是signal对象
+game.input.onDown // 按下事件
+game.input.onUp // 离开事件
+game.input.onTap // 轻击事件
+game.input.onHold // 长按事件
+
+// 添加鼠标或手指一动事件监听器
+game.input.addMoveCallback(callbackFunction, context)
+// 删除鼠标或手指移动事件监听器
+game.input.deleteMoveCallback(callbackFunction, context)
+```
+
+#### Phaser.Pointer对象
+Phaser.Pointer代表的是一个指针对象，这个指针可以是鼠标、手指或其他输入设备。在触摸设备上，一个Pointer对象代表一个手指，所以可能由多个Pointer对象。
+
+利用Pointer可以兼容支持不同设备上的指针输入对象
+```
+// 获取最近一次“激活”的Pointer对象
+var pointer = game.input.activePointer;
+
+pointer.clientX // 指针事件发生时的x坐标
+pointer.clientY // 指针事件发生时的y坐标
+
+pointer.isDown // 用来判断指针是否在按下状态，布尔值
+pointer.isUp // 用来判断指针是否在释放状态，布尔值
+```
+
+在移动设备上手指触摸到屏幕上就是激活状态，桌面上鼠标在游戏中永远是激活的
+
+##### 鼠标对象
+
+```
+// 获取普通鼠标对象
+var mouse = game.input.mouse;
+// 获取为鼠标定制的Pointer对象
+var mousePointer = game.input.mousePointer;
+
+// 鼠标滚轮事件的回调
+mouse.mouseWheelCallback // 对其负值一个函数
+// 鼠标滚轮的滚动方向,1为向上,-1为向下
+mouse.wheelDelta // 可读取属性
+
+mousePointer.leftButton // 鼠标左键对象
+mousePointer.middleButton // 鼠标中键对象
+mousePointer.rightButton // 鼠标右键对象
+// 以上三个对象的使用详情见文档
+```
+
+#### 键盘对象
+```
+// 获取键盘对象
+var keyboard = game.input.keyboard;
+
+// 添加按键回调，该回调监听所有键盘按键
+keyboard.addCallbacks(context, onDown, onUp, onPress)
+// 创建单个按键的键盘对象
+keyboard.addKey(keycode) // 返回Phaser.key对象
+// 创建一个包含上下左右方向键的键盘对象
+keyboard.createCursorKeys()
+```
+- onDown, onUp, onPress 传入的函数
+```
+
+#### Phaser.key对象
+```
+var keyboard = game.input.keyboard;
+var key = keyboard.addKey(keycode)
+
+key.isDown // 用来判断该键是否处于按下状态,布尔值
+key.isUp // 用来判断该键是否处于释放状态,布尔值
+key.onDown // 键按下时的Signal对象
+key.onUp // 键按下时的Signal对象
+
+key.altKey // 判断是否alt键是否也被同时按下
+key.ctrlKey
+key.shiftKey
+```
+### 特定游戏对象的交互事件处理 Phaer.Events对象
+
+Phaer.Events对象用于处理特定的游戏对象(如图片/精灵)的交互事件，每个Phaer.Events对象都有一个宿主，用于处理跟宿主相关的事件。
+
+Phaer.Events处理的可能不全是用户交互事件，还包括一些发生在宿主上的系统事件
+```
+var sprite = game.add.sprite();
+sprite.inputEnabled = true; // 开启输入事件
+// 获得该游戏对象的Phaser.Events对象
+var events = sprite.events;
+
+events.onInputDown  // 当有指针在该对象上按下时的事件(Signal)
+events.onInputUp // 当指针在该对象上释放时的事件(Signal)
+events.onInputOver // 当指针进入该对象上的事件(Signal)
+events.onInputOut // 指针离开该对象的事件(Signal)
+```
+
+除了Phaer.Events对象在某一特定的游戏对象上(一般是Sprite)还有一个Phaser.InputHandler对象
+```
+var sprite = game.add.sprite();
+sprite.inputEnabled = true; // 开启输入事件
+// 获取该游戏对象上的Phaser.InputHandler对象
+var inputHandler = sprite.input;
+
+inputHandler.enableDrag(); // 使其能够被拖动
+inputHandler.disableDrag(); // 禁用拖动
+
+inputHandler.pointerOver(); // 判断指针是否在对象之内，返回布尔值，可选参数为一个特定的Pointer对象ID
+inputHandler.pointerOut(); // 判断指针是否在该对象之外，返回布尔值，可选参数为一个特定的Pointer对象ID
+inputHandler.pointerX; // 指针在该对象内是时，指针相对于该对象的坐标X
+inputHandler.pointerY; // 类似上一条
+
+inputHandler.bringToTop; // 设置为true时，点击或拖动该对象会自动位于显示列表的上方
+```
+
+## Phaser中的物理引擎
+- Arcade : 速度以及加速度,角速度和其加速度,质量，重力，摩擦力和弹跳，碰撞检测
+- P2: 比第一个支持更多形状检测，支持物体之间的约束行为，支持物体的材质设置
+- Ninja
+- box2D 收费物理引擎
+
+### Arcade物理引擎
+```
+// 在游戏中开启物理引擎(phaser中默认开启此物理引擎，可以省略该句)
+game.physics.startSystem(Phaser.Physics.ARCADE);
+
+// 在sprite上启用arcade物理引擎
+game.physics.enable(spriteObj[精灵对象实例], Phaser.Physics.ARCADE)
+
+// 对组开启物理引擎(会对组内每一个元素开启物理引擎)
+groupObj.enableBody = true;
+groupObj.physicsBodyType = Phaser.Physics.ARCADE; // 指定要启用的物理引擎
+```
+一旦组启用了物理引擎，之后添加进组的子元素也会自动启用指定的物理引擎
+
+一个精灵上启用了物理引擎后，该精灵对象会拥有一个body属性,物理属性都是附加在body上的
+```
+sprite.body;
+
+// 设置速度velocity(速度值可以为负)
+sprite.body.velocity = new Phaser.Point(x方向上的速度, y方向上的速度);
+sprite.body.velocity.set(xSpeed, ySpeed);
+sprite.body.velocity.x = 100;
+sprite.body.velocity.y = 100;
+
+// 设置加速度acceleration
+sprite.body.acceleration = new Phaser.Point(aX, aY);
+sprite.body.acceleration.set(aX, aY);
+sprite.body.acceleration.x = 100;
+sprite.body.acceleration.y = 100;
+
+// 设置角速度(旋转速度，正值为顺时针方向)
+sprite.body.angularVelocity = 90; // 单位：度每秒
+
+// 设置角加速度
+sprite.body.angularAcceleration = 45;
+
+// 设置阻力 drag属性
+sprite.body.drag = new Phaser.Point(x, y)
+sprite.body.drag.set(x,y);
+sprite.body.drag.x = 100;
+sprite.body.drag.y = 100;
+
+// 设置重力 一般只设置Y轴上的重力，但X轴上也可以设置
+sprite.body.gravity = new Phaser.Point(x, y);
+sprite.body.gravity.set(x,y);
+sprite.body.gravity.x = 100;
+sprite.body.gravity.y = 100;
+
+// 设置弹跳
+sprite.body.bounce = new Phaser.Point(x, y); // 取值0~1，以下都是
+sprite.body.bounce.set(x,y);
+sprite.body.bounce.x = 100;
+sprite.body.bounce.y = 100;
+```
+
