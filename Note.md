@@ -741,3 +741,39 @@ sprite.body.bounce.x = 100;
 sprite.body.bounce.y = 100;
 ```
 
+```
+sprite.body.friction.set(100); // 设置与其他物体的摩擦力
+sprite.body.rotation = Math.PI // 设置角度
+sprite.body.immovable = true // 设置物体是否固定
+sprite.body.mass = 10;  // 设置物体的相对质量，默认为1
+sprite.body.maxVelocity.set(100, 200) //  设置最大速度
+sprite.body.maxAugular = 1000; // 设置最大角速度
+
+sprite.body.setSize(width, height, offsetX, offsetY) // 设置body的范围大小
+sprite.body.reset(x, y) // 重置所有物理方法
+
+// 以下三个方法均返回一个角度
+game.physic.arcade.moveToXY(sprite, x, y, speed); // 朝着坐标点移动
+game.physic.arcade.moveToObject(sprite, destinationObj, speed); // 朝着目标对象移动
+game.physic.arcade.moveToPointer(sprite, speed, pointerObj) // 朝着Pointer对象移动
+
+// 加速运动到某个位置
+game.physic.arcade.accelerateToXY()
+game.physic.arcade.accelerateToObject()
+game.physic.arcade.accelerateToPointer()
+
+
+// 计算角度
+game.physic.arcade.angleBetween(source, target)
+game.physic.arcade.angleToPointer(displayObj, pointerObj);
+game.physic.arcade.angleToXY(displayObj, x, y);
+
+// 计算距离
+game.physic.arcade.distanceBetween(source, target);
+game.physic.arcade.distanceToPointer(displayObj, PointerObj);
+
+// 计算速度
+game.physic.arcade.computeVelocity(axis, body, velocity, acceleration, drag)
+game.physic.arcade.velocityFromAngle(angle, speed, point)
+```
+#### 使用Arcade进行碰撞检测
